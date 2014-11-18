@@ -1,5 +1,5 @@
 {
-    "name": "xtlan/Core",
+    "name": "xtlan/core",
     "autoload": {
         "psr-4": {
             "xtlan\\Core\\": ""

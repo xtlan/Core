@@ -154,7 +154,7 @@ class Url extends Object
      * @param mixed $url
      * @return void
      */
-    public function addChildren(AUrl $url)
+    public function addChildren(Url $url)
     {
         $this->_childrens[] = $url;
         return $this;

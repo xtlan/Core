@@ -10,7 +10,7 @@ use yii\helpers\Url;
 * @version 1.0.0
 * @author Kirya <cloudkserg11@gmail.com>
 */
-class GetUrl
+class GetUrl extends Url
 {
 
     /**
@@ -23,7 +23,7 @@ class GetUrl
     public static function url($route, array $params = [])
     {
         $params[0] = $route;
-        return Url::to($params);
+        return Url::toRoute($params);
     }
 
     /**
@@ -42,6 +42,7 @@ class GetUrl
         );
     
     }
+
     
 
 

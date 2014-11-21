@@ -12,19 +12,48 @@ use yii\db\ActiveQuery;
 class Query extends ActiveQuery
 {
 
-    const DESC = 'DESC';
-    const ASC = 'ASC';
+    const ASC = 0;
+    const DESC = 1;
+    const DEFAULT_SORT = 'default';
+
+    /**
+     * sortDir
+     *
+     * @var mixed
+     */
+    public $sortDir;
+
+    /**
+     * sortOrder
+     *
+     * @var mixed
+     */
+    public $sortOrder;
 
     /**
      * sort
      *
      * @param string $order
      * @param string $dir
+     * @return void
+     */
+    public function sort($order = self::DEFAULT_SORT, $dir = self::DESC)
+    {
+        $this->sortId($dir);
+        $this->setSortMark(self::DEFAULT_SORT, $dir);
+        return $this;
+    }
+
+    /**
+     * sortId
+     *
+     * @param string $order
+     * @param string $dir
      * @return Query
      */
-    public function sort($dir = self::DESC)
+    public function sortId($dir = self::DESC)
     {
-        $this->addOrderBy('id ' . $dir);
+        $this->addOrderBy('id ' . $this->dir($dir));
         return $this;
     }
 
@@ -36,21 +65,36 @@ class Query extends ActiveQuery
     public function sortBySort($dir = self::ASC)
     {
         $this->addOrderBy('sort IS NULL');
-        $this->addOrderBy('sort ' . $dir);
-        $this->addOrderBy('id ' . $this->notDir($dir));
+        $this->addOrderBy('sort ' . $this->dir($dir));
+        $this->addOrderBy('id ' . $this->dir(!$dir));
         return $this;
     }
 
     /**
-     * notDir
+     * setSortMark
      *
-     * @param string $dir
+     * @param string $order
+     * @param mixed $dir
+     * @return void
+     */
+    protected function setSortMark($order, $dir)
+    {
+        $this->sortOrder = $order;
+        $this->sortDir = $dir;
+    }
+
+
+    /**
+     * dir
+     *
+     * @param boolean $dir
      * @return string
      */
-    protected function notDir($dir)
+    protected function dir($dir)
     {
-        return ($dir == self::ASC ? self::DESC : self::ASC);
+        return $dir ? 'DESC' : 'ASC';
     }
+
 
     /**
      * published
@@ -73,5 +117,19 @@ class Query extends ActiveQuery
         $this->addOrderBy('RAND()');
         return $this;
     }
+
+
+    /**
+     * forId
+     *
+     * @param mixed $id
+     * @return Query
+     */
+    public function forId($id)
+    {
+        $this->andWhere(['id' => $id]);
+        return $this;
+    }
+
     
 }

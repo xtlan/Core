@@ -4,6 +4,7 @@ namespace Xtlan\Core\Component;
 use Yii;
 use yii\helpers\Json;
 use Xtlan\Core\Helper\Text;
+use yii\base\Model;
 
 
 /**
@@ -51,11 +52,11 @@ class Ajax
     /**
      * sendValidateErrors
      *
-     * @param mixed $model
+     * @param Model $model
      * @param string $message
      * @return void
      */
-    public function sendValidateErrors($model, $message = 'error in data') 
+    public function sendValidateErrors(Model $model, $message = 'error in data') 
     {
         $ajaxErrors = array();
         $modelName = get_class($model);
@@ -64,6 +65,19 @@ class Ajax
         }
 
         $this->sendRespond(false, $message, $ajaxErrors);
+    }
+
+    /**
+     * throwValidateErrors
+     *
+     * @param Model $model
+     * @param mixed $message
+     * @return void
+     */
+    public function throwValidateErrors(Model $model, $message = null)
+    {
+        $this->sendValidateErrors($model, $message);
+        Yii::$app->end();
     }
 
 
@@ -88,9 +102,6 @@ class Ajax
             ' "success": "'. $statusText.  '", "message": "' . $message . '"}';
         echo $output;
     }
-
-
-
 
 
 

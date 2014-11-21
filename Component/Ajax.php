@@ -21,31 +21,6 @@ class Ajax
 
 
 
-    /**
-     * delMessage
-     *
-     * @param mixed $status
-     * @param array $ids
-     * @return void
-     */
-    public function delMessage($status = true, $ids = array()) 
-    {
-
-        $countIds = count($ids);
-
-        //Статус сообщения
-        $statusText = $status ? "true" : "false";
-
-        $message = "{$countIds} " . Text::wordNum(
-            $countIds, 
-            array(
-                Yii::t('cms', 'элемент удален'), 
-                Yii::t('cms', 'элемента удалено'), 
-                Yii::t('cms', 'элементов удалено')
-            )
-        );
-        $this->sendRespond($statusText, $message, $ids);
-    }
 
 
 

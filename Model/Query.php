@@ -2,6 +2,7 @@
 namespace Xtlan\Core\Model;
 
 use yii\db\ActiveQuery;
+use yii\db\Expression;
 
 /**
 * Query
@@ -64,8 +65,8 @@ class Query extends ActiveQuery
      */
     public function sortBySort($dir = self::ASC)
     {
-        $this->addOrderBy('sort IS NULL');
-        $this->addOrderBy('sort ' . $this->dir($dir));
+        $this->addOrderBy(new Expression('`sort` IS NOT NULL'));
+        $this->addOrderBy(new Expression('sort ' . $this->dir($dir)));
         $this->addOrderBy('id ' . $this->dir(!$dir));
         return $this;
     }

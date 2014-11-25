@@ -1,18 +1,17 @@
 <?php
 namespace Xtlan\Core\Component;
 
-use Xtlan\Core\Helper\Text;
 use yii\base\Component;
 use \Datetime;
 
 /**
- * DateFormatter
+ * DatetimeFormatter
  *
  * @version 1.0.0
  * @copyright Copyright 2011 by Kirya <cloudkserg11@gmail.com>
  * @author Kirya <cloudkserg11@gmail.com>
  */
-class DateFormatter extends Component
+class DatetimeFormatter extends Component
 {
 
 

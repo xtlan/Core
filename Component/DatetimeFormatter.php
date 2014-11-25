@@ -3,6 +3,7 @@ namespace Xtlan\Core\Component;
 
 use yii\base\Component;
 use \Datetime;
+use Yii;
 
 /**
  * DatetimeFormatter
@@ -15,146 +16,131 @@ class DatetimeFormatter extends Component
 {
 
 
-    public function formatHuman(Datetime $date)
-    {
-        $timestamp = $date->getTimestamp();
 
-        //Если эту дату можно охарактеризовать
-        //словами (вчера сегодна)
-        if ($wordDate = $this->getWordDate($timestamp)) {
-            return $wordDate;
-        }
-
-        //Форматируем дату
-        //Если год текущий
-        if ($this->isCurrentYear($timestamp)) {
-            $dateString = Yii::$app->formatter->asDate($timestamp, 'd MMMM');
-        } else {
-            $dateString = Yii::$app->formatter->asDate($timestamp, 'd MMMM yyyy');
-        }
-
-        return $dateString;
-
-    }
-
-    public function formatWeb(DateTime $date)
-    {
-        return Yii::$app->formatter->asDate($date);
-    }
-
-    public function formatDatesAgo(DateTime $date)
-    {
-        $timestamp = $date->getTimestamp();
-        $daysAgo = ceil(($timestamp - time()) / 86400);
-        if ($daysAgo == 0) {   
-            return '0 дней'; 
-        } 
-
-        return  $daysAgo . ' ' . Text::wordNum( 
-            $daysAgo,             
-            array(             
-                'день',
-                'дня',
-                'дней'
-            )
-        );
-    
-    }
-    
     /**
-     * asDiffDate
+     * formatMinute
      *
-     * @param Datetime $startDate
-     * @param Datetime $endDate
+    *  @param Datetime $datetime
+     * @return string
+     */
+    public function formatMinute(Datetime $datetime)
+    {
+        $timestamp = $datetime->getTimestamp();
+        //Разница между датами
+        $difference = time() - $timestamp;
+
+        //Получаем разницу в минутах
+        $minutes = round($difference/(60));
+
+        //Строка вывода
+        return  $minutes . ' мин.';
+    }
+
+
+    /**
+     * formatHuman
+     *
+     * @param Datetime $datetime
+     * @return string
+     */
+    public function formatHuman(Datetime $datetime)
+    {
+
+        //Форматируем дату по человечески
+        $date = Yii::$app->dateFormatter->formatHuman($datetime);
+
+        //Форматируем время по человечески
+        $time = $this->formatTime($datetime);
+
+        //Строка вывода
+        $datetimeString = "{$date}, {$time}";
+        
+        return $datetimeString;
+    }
+
+    /**
+     * formatDiffDatetime
+     *
+     * @param int $timestampStart
+     * @param int $timestampEnd
      * @param string $formatString
      * @return string
      */
-    public function formatDiffDate(
-        $startDate, 
-        $endDate, 
+    public function formatDiffDatetime(
+        $inputTimestampStart, 
+        $inputTimestampEnd, 
         $formatString = '' ) 
     {
 
-        $inputTimestampStart = $startDate->getTimestamp();
-        $inputTimestampEnd = $endDate->getTimestamp();
+        $dateFormatter = Yii::app()->dateFormatter;
 
         //Если какая та из дат пустая 
         //то приравниваем ее другой
-        $startTimestamp = empty($inputTimestampStart) ? 
+        $timestampStart = empty($inputTimestampStart) ? 
             $inputTimestampEnd : $inputTimestampStart;
-        $endTimestamp = empty($inputTimestampEnd) ?  
+        $timestampEnd = empty($inputTimestampEnd) ?  
             $inputTimestampStart : $inputTimestampEnd;
         
         //Кастим в интовые значения
-        $startTimestamp = (int)$startTimestamp;
-        $endTimestamp = (int)$endTimestamp;
+        $timestampStart = (int)$timestampStart;
+        $timestampEnd = (int)$timestampEnd;
 
 
         //Есть три варианта
-        $dateFormatter = Yii::$app->formatter;
 
 
         //3 Дата начала и дата конца разные
         //тогда с 12 марта 2012 по 13 марта 2013
-        if (date('Y', $startTimestamp) != date('Y', $endTimestamp)) {
-            
-            $startDate = $dateFormatter->asDate($timestmapStart, 'd MMMM yyyy');
-            $endDate = $dateFormatter->asDate($endTimestamp, 'd MMMM yyyy');
+        if (date('Y', $timestampStart) != date('Y', $timestampEnd)) {
+            $dateStart = $dateFormatter->format('d MMMM yyyy HH:mm', $timestampStart);
+            $dateEnd = $dateFormatter->format('d MMMM yyyy HH:mm', $timestampEnd);
         //2 дата начала и дата конца в один год
         //тогда с 12 марта по 13 арпеля 2012
-        } elseif ( date('m', $startTimestamp) != date('m', $endTimestamp)) {
-            $startDate = $dateFormatter->asDate('d MMMM', $startTimestamp);
-            $endDate = $dateFormatter->asDate('d MMMM yyyy', $endTimestamp);
+        } elseif ( date('m', $timestampStart) != date('m', $timestampEnd)) {
+            $dateStart = $dateFormatter->format('d MMMM HH:mm', $timestampStart);
+            $dateEnd = $dateFormatter->format('d MMMM yyyy HH:mm', $timestampEnd);
         //1 Дата начала и дата конца в один месяц
         //тогда с 9 по 9 апреля 2012
         } else {
-            $startDate = $dateFormatter->asDate('d', $startTimestamp);
-            $endDate = $dateFormatter->asDate('d MMMM yyyy', $endTimestamp);
+            $dateStart = $dateFormatter->format('d MMMM HH:mm', $timestampStart);
+            $dateEnd = $dateFormatter->format('d MMMM yyyy HH:mm', $timestampEnd);
         }
 
         if (empty($formatString)) {
-            $formatString = 'с :startDate по :endDate';
+            $formatString = 'с :dateStart по :dateEnd';
         }
-        $string = str_replace(':startDate', $startDate, $formatString);
-        $string = str_replace(':endDate', $endDate, $string);
+        $string = Yii::t(
+            'cms', 
+            $formatString, 
+            array(':dateStart' => $dateStart, ':dateEnd' => $dateEnd), 
+            'cmsMessages'
+        );
 
         return $string;
     }
 
     /**
-     * getWordDate
+     * formatTime
      *
-     * @param int $timestamp
-     * @return string|boolean
+     * @param Datetime $datetime
+     * @return void
      */
-    private function getWordDate($timestamp)
+    public function formatTime(Datetime$datetime)
     {
-        //Проверяем это сегодня?
-        if ($timestamp >= strtotime('today') and $timestamp < strtotime('today +1 day')) {
-            return 'Сегодня';
-        }
-
-        //Проверяем это вчера?
-        if ($timestamp > strtotime('yesterday') and $timestamp < strtotime('today')) {
-            return 'Вчера';
-        }
-
-        return false;
+        return Yii::$app->formatter->asTime($datetime);
     }
 
     /**
-     * isCurrentYear
+     * formatWeb
      *
-     * @param int $timestamp
-     * @return string
+     * @param DateTime $date
+     * @return void
      */
-    private function isCurrentYear($timestamp)
+    public function formatWeb(DateTime $date)
     {
-        if (date('Y', $timestamp) == date('Y')) {
-            return true;
-        }
-        return false;
+        return Yii::$app->formatter->asDateTime($date);
     }
+
 
 }
 

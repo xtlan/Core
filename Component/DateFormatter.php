@@ -4,6 +4,7 @@ namespace Xtlan\Core\Component;
 use Xtlan\Core\Helper\Text;
 use yii\base\Component;
 use \Datetime;
+use Yii;
 
 /**
  * DateFormatter

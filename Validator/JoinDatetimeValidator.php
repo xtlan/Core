@@ -28,9 +28,18 @@ class JoinDatetimeValidator extends Validator
         $dateField = $this->date;
         $timeField = $this->time;
 
-        $value = $model->$dateField . ' ' . $model->$timeField;
+        $errors = array_merge($model->getErrors($this->date), $model->getErrors($this->time));
+        if (empty($errors)) {
+            $value = $model->$dateField;
+            $timeValue = $model->$timeField;
+            if (!empty($value)) {
+                $value->setTime($timeValue->format('h'), $timeValue->format('i'));
 
-        $model->$attribute = $value;
+                $model->$attribute = $value;
+            }
+        
+        }
+
     } 
     
 }

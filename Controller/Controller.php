@@ -1,11 +1,12 @@
 <?php
-namespace app\vendor\xtlan\core\Controller;
+namespace Xtlan\Core\Controller;
 
 use Yii;
 use yii\widgets\ActiveForm;
 use yii\web\NotFoundHttpException;
 use yii\base\Model;
 use Xtlan\Core\Component\Ajax;
+use yii\web\Controller as BaseController;
 
 /**
 * Controller
@@ -13,7 +14,7 @@ use Xtlan\Core\Component\Ajax;
 * @version 1.0.0
 * @author Kirya <cloudkserg11@gmail.com>
 */
-class Controller
+class Controller extends BaseController
 {
     /**
      * performAjaxValidation
@@ -55,7 +56,7 @@ class Controller
      * @param Model $item
      * @return void
      */
-    protected function flashErrors(Model $item)
+    public function flashErrors(Model $item)
     {
         foreach ($item->errors as $errors) {
             Yii::$app->session->setFlash('error', implode(', ', $errors));

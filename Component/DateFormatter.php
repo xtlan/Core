@@ -5,6 +5,7 @@ use Xtlan\Core\Helper\Text;
 use yii\base\Component;
 use \Datetime;
 use Yii;
+use Xtlan\Core\Datetime\NullDatetime;
 
 /**
  * DateFormatter
@@ -17,6 +18,12 @@ class DateFormatter extends Component
 {
 
 
+    /**
+     * formatHuman
+     *
+     * @param Datetime $date
+     * @return string
+     */
     public function formatHuman(Datetime $date)
     {
         $timestamp = $date->getTimestamp();
@@ -39,11 +46,26 @@ class DateFormatter extends Component
 
     }
 
+    /**
+     * formatWeb
+     *
+     * @param DateTime $date
+     * @return string
+     */
     public function formatWeb(DateTime $date)
     {
+        if ($date instanceof NullDatetime) {
+            return '';
+        }
         return Yii::$app->formatter->asDate($date);
     }
 
+    /**
+     * formatDatesAgo
+     *
+     * @param DateTime $date
+     * @return string
+     */
     public function formatDatesAgo(DateTime $date)
     {
         $timestamp = $date->getTimestamp();
@@ -66,59 +88,56 @@ class DateFormatter extends Component
     /**
      * asDiffDate
      *
-     * @param Datetime $startDate
-     * @param Datetime $endDate
+     * @param Datetime|string $startDate
+     * @param Datetime|string $endDate
      * @param string $formatString
      * @return string
      */
     public function formatDiffDate(
-        $startDate, 
-        $endDate, 
-        $formatString = '' ) 
+        $startDatetime, 
+        $endDatetime, 
+        $formatString = 'с :startDate по :endDate' ) 
     {
-
-        $inputTimestampStart = $startDate->getTimestamp();
-        $inputTimestampEnd = $endDate->getTimestamp();
+        if (empty($startDatetime) and empty($endDatetime)) {
+            return '';
+        }
 
         //Если какая та из дат пустая 
         //то приравниваем ее другой
-        $startTimestamp = empty($inputTimestampStart) ? 
-            $inputTimestampEnd : $inputTimestampStart;
-        $endTimestamp = empty($inputTimestampEnd) ?  
-            $inputTimestampStart : $inputTimestampEnd;
+        $startDatetime = empty($startDatetime) ? 
+            $endDatetime : $startDatetime;
+        $endDatetime = empty($endDatetime) ?  
+            $startDatetime : $endDatetime;
+
         
         //Кастим в интовые значения
-        $startTimestamp = (int)$startTimestamp;
-        $endTimestamp = (int)$endTimestamp;
+        $startTimestamp = $startDatetime->getTimestamp();
+        $endTimestamp = $endDatetime->getTimestamp();
 
 
         //Есть три варианта
-        $dateFormatter = Yii::$app->formatter;
+        $formatter = Yii::$app->formatter;
 
 
         //3 Дата начала и дата конца разные
         //тогда с 12 марта 2012 по 13 марта 2013
         if (date('Y', $startTimestamp) != date('Y', $endTimestamp)) {
             
-            $startDate = $dateFormatter->asDate($timestmapStart, 'd MMMM yyyy');
-            $endDate = $dateFormatter->asDate($endTimestamp, 'd MMMM yyyy');
+            $startDate = $formatter->asDate($timestmapStart, 'd MMMM yyyy');
+            $endDate = $formatter->asDate($endTimestamp, 'd MMMM yyyy');
         //2 дата начала и дата конца в один год
         //тогда с 12 марта по 13 арпеля 2012
         } elseif ( date('m', $startTimestamp) != date('m', $endTimestamp)) {
-            $startDate = $dateFormatter->asDate('d MMMM', $startTimestamp);
-            $endDate = $dateFormatter->asDate('d MMMM yyyy', $endTimestamp);
+            $startDate = $formatter->asDate('d MMMM', $startDatetime);
+            $endDate = $formatter->asDate('d MMMM yyyy', $endDatetime);
         //1 Дата начала и дата конца в один месяц
         //тогда с 9 по 9 апреля 2012
         } else {
-            $startDate = $dateFormatter->asDate('d', $startTimestamp);
-            $endDate = $dateFormatter->asDate('d MMMM yyyy', $endTimestamp);
+            $startDate = $formatter->asDate('d', $startDatetime);
+            $endDate = $formatter->asDate('d MMMM yyyy', $endDatetime);
         }
 
-        if (empty($formatString)) {
-            $formatString = 'с :startDate по :endDate';
-        }
-        $string = str_replace(':startDate', $startDate, $formatString);
-        $string = str_replace(':endDate', $endDate, $string);
+        $string = strtr($formatString, [':startDate' => $startDate, ':endDate' => $endDate]);
 
         return $string;
     }

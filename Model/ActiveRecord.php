@@ -21,8 +21,12 @@ class ActiveRecord extends BaseActiveRecord
         return new Query(get_called_class());
     }
 
-    public function getLazyRel($nameRelation, $nameClass)
+    public function getLazyRel($nameRelation, $nameClass = null)
     {
+        if (!isset($nameClass)) {
+            $nameClass = $this->getRelation($nameRelation)->modelClass;
+        }
+
         if (!isset($this->$nameRelation)) {
             return new $nameClass;
         }

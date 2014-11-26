@@ -6,15 +6,15 @@ use yii\base\Behavior;
 use Xtlan\Core\Datetime\NullDatetime;
 
 /**
-* TimestampFieldBehavior
+* DateFieldBehavior
 *
 * @version 1.0.0
 * @author Kirya <cloudkserg11@gmail.com>
 */
-class TimestampFieldBehavior extends Behavior
+class DateFieldBehavior extends Behavior
 {
 
-    public $fields = ['time'];
+    public $fields = ['date'];
 
     /**
      * events
@@ -36,10 +36,8 @@ class TimestampFieldBehavior extends Behavior
         foreach ($this->fields as $field) {
             $oldValue = $sender->$field;
 
-            $newValue = empty($oldValue) ? new NullDatetime() : new \DateTime();
-            $newValue->setTimestamp($oldValue);
+            $sender->$field = empty($oldValue) ? new NullDatetime() : new \DateTime($oldValue);
 
-            $sender->$field = $newValue;
         }
     
     }
@@ -57,7 +55,7 @@ class TimestampFieldBehavior extends Behavior
         foreach ($this->fields as $field) {
             $oldValue = $sender->$field;
 
-            $sender->$field = $oldValue->getTimestamp();
+            $sender->$field = $oldValue->format(\Datetime::ISO8601);
         }
     }
 

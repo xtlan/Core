@@ -3,6 +3,7 @@ namespace Xtlan\Core\Component;
 
 use yii\base\Component;
 use \Datetime;
+use Xtlan\Core\Datetime\NullDatetime;
 use Yii;
 
 /**
@@ -45,9 +46,12 @@ class DatetimeFormatter extends Component
      */
     public function formatHuman(Datetime $datetime)
     {
+        if ($date instanceof NullDatetime) {
+            return '';
+        }
 
         //Форматируем дату по человечески
-        $date = Yii::$app->dateFormatter->formatHuman($datetime);
+        $date = Yii::$app->formatter->asDateHuman($datetime);
 
         //Форматируем время по человечески
         $time = $this->formatTime($datetime);
@@ -61,60 +65,52 @@ class DatetimeFormatter extends Component
     /**
      * formatDiffDatetime
      *
-     * @param int $timestampStart
-     * @param int $timestampEnd
+     * @param Datetime|string $datetimeStart
+     * @param Datetime|string $datetimeEnd
      * @param string $formatString
      * @return string
      */
     public function formatDiffDatetime(
-        $inputTimestampStart, 
-        $inputTimestampEnd, 
-        $formatString = '' ) 
-    {
+        $startDatetime, 
+        $endDatetime, 
+        $formatString = 'с :startDate по :endDate'
+    ) {
 
-        $dateFormatter = Yii::app()->dateFormatter;
 
         //Если какая та из дат пустая 
         //то приравниваем ее другой
-        $timestampStart = empty($inputTimestampStart) ? 
-            $inputTimestampEnd : $inputTimestampStart;
-        $timestampEnd = empty($inputTimestampEnd) ?  
-            $inputTimestampStart : $inputTimestampEnd;
+        $startDatetime = empty($startDatetime) ? 
+            $endDatetime : $startDatetime;
+        $endDatetime = empty($endDatetime) ?  
+            $startDatetime : $endDatetime;
         
         //Кастим в интовые значения
-        $timestampStart = (int)$timestampStart;
-        $timestampEnd = (int)$timestampEnd;
+        $startTimestamp = $startDatetime->getTimestamp();
+        $endTimestamp = $endDatetime->getTimestamp();
 
 
         //Есть три варианта
+        $formatter = Yii::$app->formatter;
 
 
         //3 Дата начала и дата конца разные
         //тогда с 12 марта 2012 по 13 марта 2013
-        if (date('Y', $timestampStart) != date('Y', $timestampEnd)) {
-            $dateStart = $dateFormatter->format('d MMMM yyyy HH:mm', $timestampStart);
-            $dateEnd = $dateFormatter->format('d MMMM yyyy HH:mm', $timestampEnd);
+        if (date('Y', $startTimestamp) != date('Y', $endTimestamp)) {
+            $startDate = $formatter->asDate($startDatetime, 'd MMMM yyyy HH:mm');
+            $endDate = $formatter->asDate($endDatetime, 'd MMMM yyyy HH:mm');
         //2 дата начала и дата конца в один год
         //тогда с 12 марта по 13 арпеля 2012
-        } elseif ( date('m', $timestampStart) != date('m', $timestampEnd)) {
-            $dateStart = $dateFormatter->format('d MMMM HH:mm', $timestampStart);
-            $dateEnd = $dateFormatter->format('d MMMM yyyy HH:mm', $timestampEnd);
+        } elseif ( date('m', $startTimestamp) != date('m', $endTimestamp)) {
+            $startDate = $formatter->asDate($startDatetime, 'd MMMM HH:mm');
+            $endDate = $formatter->asDate($endDatetime, 'd MMMM yyyy HH:mm');
         //1 Дата начала и дата конца в один месяц
         //тогда с 9 по 9 апреля 2012
         } else {
-            $dateStart = $dateFormatter->format('d MMMM HH:mm', $timestampStart);
-            $dateEnd = $dateFormatter->format('d MMMM yyyy HH:mm', $timestampEnd);
+            $startDate = $formatter->asDate($startDatetime, 'd MMMM HH:mm');
+            $endDate = $formatter->asDate($endDatetime, 'd MMMM yyyy HH:mm');
         }
 
-        if (empty($formatString)) {
-            $formatString = 'с :dateStart по :dateEnd';
-        }
-        $string = Yii::t(
-            'cms', 
-            $formatString, 
-            array(':dateStart' => $dateStart, ':dateEnd' => $dateEnd), 
-            'cmsMessages'
-        );
+        $string = strtr($formatString, [':startDate' => $startDate, ':endDate' => $endDate]);
 
         return $string;
     }
@@ -123,21 +119,27 @@ class DatetimeFormatter extends Component
      * formatTime
      *
      * @param Datetime $datetime
-     * @return void
+     * @return string
      */
-    public function formatTime(Datetime$datetime)
+    public function formatTime(Datetime $datetime)
     {
+        if ($date instanceof NullDatetime) {
+            return '';
+        }
         return Yii::$app->formatter->asTime($datetime);
     }
 
     /**
      * formatWeb
      *
-     * @param DateTime $date
-     * @return void
+     * @param Datetime $date
+     * @returnstring
      */
-    public function formatWeb(DateTime $date)
+    public function formatWeb(Datetime $date)
     {
+        if ($date instanceof NullDatetime) {
+            return '';
+        }
         return Yii::$app->formatter->asDateTime($date);
     }
 

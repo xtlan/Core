@@ -2,8 +2,9 @@
 namespace Xtlan\Core\Model\Behavior;
 
 use yii\db\ActiveRecord;
-use yii\db\ActiveRecordInteface;
+use yii\db\ActiveRecordInterface;
 use yii\base\Behavior;
+use Xtlan\Core\Helper\ArrayHelper;
 
 /**
 * ManyManyBehavior
@@ -21,6 +22,13 @@ class ManyManyBehavior extends Behavior
      */
     public $relations = array();
 
+    /**
+     * oldLinkValues
+     *
+     * @var array (name_link => old_value, ...)
+     */
+    private $oldLinkValues = array();
+
 
     /**
      * events
@@ -30,7 +38,6 @@ class ManyManyBehavior extends Behavior
     public function events()
     {
         return [
-            ActiveRecord::EVENT_BEFORE_INSERT => 'beforeInsert',
             ActiveRecord::EVENT_AFTER_FIND  => 'afterFind',
 
             ActiveRecord::EVENT_AFTER_INSERT => 'afterSave',
@@ -40,18 +47,6 @@ class ManyManyBehavior extends Behavior
         ];
     }
 
-    /**
-     * beforeInsert
-     *
-     * @param mixed $event
-     * @return void
-     */
-    public function beforeInsert($event)
-    {
-        foreach ($this->relations as $link => $rel) {
-            $event->sender->markAttributeDirty($link);
-        }
-    }
 
 
     /**
@@ -65,12 +60,16 @@ class ManyManyBehavior extends Behavior
         $sender = $event->sender;
         foreach ($this->relations as $link => $rel) {
             $sender->$link = $this->getLinkKeys($sender, $rel); 
+            $this->oldLinkValues[$link] = $sender->$link;
+
         }
+
     }
 
 
+
     /**
-     * afterSav e
+     * afterSave
      *
      * @param mixed $event
      * @return void
@@ -78,12 +77,11 @@ class ManyManyBehavior extends Behavior
     public function afterSave($event)
     {
         $sender = $event->sender;
-        $dirtyAttributes = $sender->dirtyAttributes;
 
         foreach ($this->relations as $link => $rel) {
-            if (in_array($link, $dirtyAttributes)) {
-                $this->clearRelation($rel);   
-                $this->saveRelation($rel, $sender->$link);   
+            if ($this->isChanged($sender, $link)) {
+                $this->clearRelation($sender, $rel);   
+                $this->saveRelation($sender, $rel, $sender->$link);   
             }
         }
     }
@@ -101,6 +99,21 @@ class ManyManyBehavior extends Behavior
         foreach ($this->relations as $rel) {
             $this->clearRelation($rel);
         }
+    }
+
+    /**
+     * isChanged
+     *
+     * @param ActiveRecordInterface $sender
+     * @param mixed $link
+     * @return boolean
+     */
+    private function isChanged(ActiveRecordInterface $sender, $link)
+    {
+        if (!isset($this->oldLinkValues[$link])) {
+            return !empty($link);
+        }
+        return $this->oldLinkValues[$link] != $sender->$link; 
     }
 
     /**
@@ -161,7 +174,7 @@ class ManyManyBehavior extends Behavior
      */
     private function getLinkField(ActiveRecordInterface $sender, $relationName)
     {
-        return key($event->getRelation($relationName)->link);
+        return key($sender->getRelation($relationName)->link);
     }
 
     /**

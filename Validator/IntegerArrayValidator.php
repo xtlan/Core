@@ -11,6 +11,7 @@ use yii\validators\Validator;
 */
 class IntegerArrayValidator extends Validator
 {
+    const EMPTY_ARRAY = '[]';
 
 
     /**
@@ -25,6 +26,11 @@ class IntegerArrayValidator extends Validator
         $value = $model->$attribute;
         if (empty($value)) {
             return true;
+        }
+
+        if ($value == self::EMPTY_ARRAY) {
+            $model->$attribute = array();
+            $value = array();
         }
 
         if (!is_array($value)) {

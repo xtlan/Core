@@ -79,7 +79,7 @@ class PasswordBehavior extends Behavior
 
         if (in_array($this->passwordField, $sender->dirtyAttributes)) {
             $password = $sender->getAttribute($this->passwordField);
-            $hash = Yii::$app->security->generatePasswordHash($password);
+            $hash = $this->getHashPassword($password);
 
             $sender->setAttribute($this->passwordField, $hash);
         }
@@ -97,6 +97,29 @@ class PasswordBehavior extends Behavior
         $sender = $event->sender;
         
         $sender->setAttribute($this->authField, Yii::$app->security->generateRandomString());
+    }
+
+    /**
+     * validatePassword
+     *
+     * @param string $password
+     * @param string $hash
+     * @return boolean
+     */
+    public function validatePassword($password, $hash)
+    {
+        return Yii::$app->security->validatePassword($password, $hash);
+    }
+
+    /**
+     * getHashPassword
+     *
+     * @param string $password
+     * @return string
+     */
+    public function getHashPassword($password)
+    {
+        return Yii::$app->security->generatePasswordHash($password);
     }
     
 

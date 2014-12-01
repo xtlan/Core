@@ -4,6 +4,7 @@ namespace Xtlan\Core\Web\Link;
 use yii\base\Object;
 use Yii;
 use yii\web\UrlManager;
+use Xtlan\Core\Helper\GetUrl;
 
 /**
  * Url
@@ -33,12 +34,6 @@ class Url extends Object
      */
     private $_current;
 
-    /**
-     * _urlManager
-     *
-     * @var CUrlManager
-     */
-    private $_urlManager;
     
     /**
      * _withoutAction
@@ -84,29 +79,6 @@ class Url extends Object
         return new Url($route, $params);
     }
 
-    /**
-     * Gets the value of urlManager
-     *
-     * @return CUrlManager
-     */
-    public function getUrlManager()
-    {
-        if (!isset($this->_urlManager)) {
-            $this->_urlManager = Yii::$app->urlManager;
-        }
-        return $this->_urlManager;
-    }
-    
-    /**
-     * Sets the value of urlManager
-     *
-     * @param UrlManager $urlManager 
-     */
-    public function setUrlManager(UrlManager $urlManager)
-    {
-        $this->_urlManager = $urlManager;
-        return $this;
-    }
     
 
     /**
@@ -125,7 +97,7 @@ class Url extends Object
      */
     public function getString()
     {
-        return  $this->getUrlManager()->createUrl($this->_route, $this->_params);
+        return GetUrl::url($this->_route, $this->_params);
     }
 
     /**

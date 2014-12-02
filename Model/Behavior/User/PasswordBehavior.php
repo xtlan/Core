@@ -43,6 +43,7 @@ class PasswordBehavior extends Behavior
         ];
     }
 
+
     /**
      * beforeInsert
      *
@@ -77,12 +78,17 @@ class PasswordBehavior extends Behavior
     {
         $sender = $event->sender;
 
-        if (in_array($this->passwordField, $sender->dirtyAttributes)) {
-            $password = $sender->getAttribute($this->passwordField);
+        $password = $sender->getAttribute($this->passwordField);
+        if (!empty($password)) {
             $hash = $this->getHashPassword($password);
 
             $sender->setAttribute($this->passwordField, $hash);
-        }
+        } else {
+            $sender->setAttribute(
+                $this->passwordField, 
+                $sender->getOldAttribute($this->passwordField)
+            );
+        } 
 
     }
 

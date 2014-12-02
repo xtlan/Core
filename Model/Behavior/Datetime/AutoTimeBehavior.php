@@ -59,10 +59,15 @@ class AutoTimeBehavior extends Behavior
      */
     public function beforeUpdate($event)
     {
+        $createdField = $this->createdField;
         $modifiedField = $this->modifiedField;
 
         $datetime = new \DateTime();
         $event->sender->$modifiedField = $datetime->getTimestamp();
+
+
+        $createdDatetime = $event->sender->$createdField;
+        $event->sender->$createdField = $createdDatetime->getTimestamp();
     }
 
 

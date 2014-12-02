@@ -27,6 +27,9 @@ class TimestampFieldBehavior extends Behavior
             ActiveRecord::EVENT_AFTER_FIND => 'afterFind',
             ActiveRecord::EVENT_BEFORE_INSERT => 'beforeSave',
             ActiveRecord::EVENT_BEFORE_UPDATE => 'beforeSave',
+
+            ActiveRecord::EVENT_AFTER_INSERT => 'afterFind',
+            ActiveRecord::EVENT_AFTER_UPDATE => 'afterFind'
         ];
     }
 

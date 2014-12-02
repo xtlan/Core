@@ -25,8 +25,12 @@ class AutoTimeBehavior extends Behavior
     public function events()
     {
         return [
+            ActiveRecord::EVENT_AFTER_FIND => 'afterFind',
             ActiveRecord::EVENT_BEFORE_INSERT => 'beforeInsert',
-            ActiveRecord::EVENT_BEFORE_UPDATE => 'beforeUpdate'
+            ActiveRecord::EVENT_BEFORE_UPDATE => 'beforeUpdate',
+
+            ActiveRecord::EVENT_AFTER_INSERT => 'afterFind',
+            ActiveRecord::EVENT_AFTER_UPDATE => 'afterFind'
         ];
     }
 
@@ -42,8 +46,9 @@ class AutoTimeBehavior extends Behavior
         $createdField = $this->createdField;
         $modifiedField = $this->modifiedField;
 
-        $event->sender->$createdField = new \DateTime();
-        $event->sender->$modifiedField = new \DateTime();
+        $datetime = new \DateTime();
+        $event->sender->$createdField = $datetime->getTimestamp();
+        $event->sender->$modifiedField = $datetime->getTimestamp();
     }
 
     /**
@@ -56,8 +61,36 @@ class AutoTimeBehavior extends Behavior
     {
         $modifiedField = $this->modifiedField;
 
-        $event->sender->$modifiedField = new \DateTime();
+        $datetime = new \DateTime();
+        $event->sender->$modifiedField = $datetime->getTimestamp();
     }
+
+
+    /**
+     * afterFin d
+     *
+     * @param mixed $event
+     * @return void
+     */
+    public function afterFind($event)
+    {
+        $sender = $event->sender;
+
+        $fields = [$this->createdField, $this->modifiedField];
+        
+        foreach ($fields as $field) {
+            $oldValue = $sender->$field;
+
+            $newValue = empty($oldValue) ? new NullDatetime() : new \DateTime();
+            $newValue->setTimestamp($oldValue);
+
+            $sender->$field = $newValue;
+        }
+    
+    }
+
+
+
 
     
 }

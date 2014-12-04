@@ -4,6 +4,7 @@ namespace Xtlan\Core\Controller;
 use Yii;
 use yii\widgets\ActiveForm;
 use yii\web\NotFoundHttpException;
+use yii\web\ServerErrorException;
 use yii\base\Model;
 use Xtlan\Core\Component\Ajax;
 use yii\web\Controller as BaseController;
@@ -61,6 +62,27 @@ class Controller extends BaseController
         foreach ($item->errors as $errors) {
             Yii::$app->session->setFlash('error', implode(', ', $errors));
         }
+    }
+
+    /**
+     * getFilter
+     *
+     * @param string $filterName
+     * @param array $params
+     * @return yii\base\Model
+     */
+    public function getFilter($filterName, array $params)
+    {
+        if (!class_exists($filterName)) {
+            throw new ServerErrorException('Нет такого класса с фильтром: ' . $filterName);
+        }
+        $filter = new $filterName;
+        $filter->load($params);
+        if (!$filter->validate()) {
+            throw new NotFoundHttpException('Фильтр неверный');
+        }
+
+        return $filter;
     }
     
 }

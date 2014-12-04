@@ -19,11 +19,11 @@ class ConstEnum
 
 
     /**
-     * getInstance
+     * getEnum
      *
      * @return void
      */
-    public static function getInstance()
+    public static function getEnum()
     {
         if (!isset(self::$_instance)) {
             self::$_instance = new static();

@@ -8,6 +8,7 @@ use yii\web\ServerErrorException;
 use yii\base\Model;
 use Xtlan\Core\Component\Ajax;
 use yii\web\Controller as BaseController;
+use yii\web\Response;
 
 /**
 * Controller
@@ -17,18 +18,37 @@ use yii\web\Controller as BaseController;
 */
 class Controller extends BaseController
 {
+
+    const POST_METHOD = 'POST';
+
     /**
-     * performAjaxValidation
+     * ajaxValidate
      *
-     * @param mixed $model
+     * @param Model $form
      * @return void
      */
-    protected function performAjaxValidation($model)
+    protected function ajaxValidate(Model $form)
+    {   
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        return ActiveForm::validate($form);
+    }
+
+    /**
+     * isAjaxValidation
+     *
+     * @param Model $form
+     * @param mixed $method
+     * @return void
+     */
+    protected function isAjaxValidation(Model $form, $method = self::POST_METHOD)
     {
-        if (Yii::$app->request->isAjax) {
-            echo ActiveForm::validate($model);
-            Yii::$app->end();
+        if ($method == self::POST_METHOD) {
+            $ajax = Yii::$app->request->post('ajax');
+        } else {
+            $ajax = Yii::$app->request->get('ajax');
         }
+
+        return (Yii::$app->request->isAjax and isset($ajax));
     }
 
 
@@ -43,11 +63,25 @@ class Controller extends BaseController
     {
         if (Yii::$app->request->isAjax) {
             $ajax = new Ajax();
-            $ajax->throwValidateErrors($item, $message);
+            return $ajax->throwValidateErrors($item, $message);
         }
 
 
         return new NotFoundHttpException($message);
+    }
+
+    /**
+     * renderOwnAjax
+     *
+     * @param mixed $view
+     * @param mixed $params
+     * @return string
+     */
+    protected function renderOwnAjax($view, $params = [])
+    {
+        $content = $this->renderAjax($view, $params);
+        $ajax = new Ajax;
+        return $ajax->sendRespond(true, null, $content);
     }
 
     

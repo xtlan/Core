@@ -1,5 +1,5 @@
 <?php
-namespace Xtlan\Core\Web;
+namespace Xtlan\Core\Widget;
 
 use yii\base\Widget;
 use yii\helpers\Html;
@@ -66,6 +66,7 @@ class AjaxSubmitButton extends Widget
      */
     public $encodeLabel = true;
 
+
     /**
      * Initializes the widget.
      */
@@ -75,6 +76,7 @@ class AjaxSubmitButton extends Widget
         if (!isset($this->options['id'])) {
             $this->options['id'] = $this->getId();
         }
+
     }
 
     public function run()
@@ -82,7 +84,6 @@ class AjaxSubmitButton extends Widget
         parent::run();
 
         echo Html::tag($this->tagName, $this->encodeLabel ? Html::encode($this->label) : $this->label, $this->options);
-        
         if (!empty($this->ajaxOptions))
             $this->registerAjaxScript();
     }
@@ -100,5 +101,6 @@ class AjaxSubmitButton extends Widget
                 return false;
             });");
     }
+
 
 } 

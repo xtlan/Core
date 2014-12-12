@@ -6,11 +6,21 @@ use yii\base\Behavior;
 /**
 * ActivationBehavior
 *
+*
+* create fields
+* activpassword - string
+* activkey - string
+* activtime - int
+*
+*
 * @version 1.0.0
 * @author Kirya <cloudkserg11@gmail.com>
 */
 class ActivationBehavior extends Behavior
 {
+
+    const PUBLISHED_MARK = -1;
+
     /**
      * maxDiffActivtime максимальное количество времени
      * активации
@@ -27,7 +37,7 @@ class ActivationBehavior extends Behavior
      */
     public function initActivationReg()
     {
-        $this->owner->published = -1;
+        $this->owner->published = self::PUBLISHED_MARK;
         $this->setActivateInfo($this->owner->password);
         return $this->owner->save();
     }
@@ -55,7 +65,7 @@ class ActivationBehavior extends Behavior
     public function activateReg()
     {
         //Проверяем активацию
-        if (!$this->checkActivate()) {
+        if ($this->owner->published != self::PUBLISHED_MARK or !$this->checkActivate()) {
             return false;
         }
         //Публикуем пользователя и активируем пароль
@@ -93,9 +103,9 @@ class ActivationBehavior extends Behavior
     private function setActivateInfo($password)
     {
         //Шифруем пароль и сохраняем актив инфу
-        $this->owner->activpassword = $this->owner->cryptPassword($password);
+        $this->owner->activpassword = $this->owner->getHashPassword($password);
         $this->owner->activkey = md5($password . microtime());
-        $this->owner->activtime = time('d.m.Y H:i:s');
+        $this->owner->activtime = time();
     }
 
 
@@ -104,7 +114,7 @@ class ActivationBehavior extends Behavior
      *
      * @return void
      */
-    private function checkActivate()
+    public function checkActivate()
     {
         //Если ссылка уже устарела
         $diffTime = time() - $this->owner->activtime;

@@ -5,6 +5,8 @@ use Yii;
 use yii\helpers\Json;
 use Xtlan\Core\Helper\Text;
 use yii\base\Model;
+use yii\web\Response;
+use yii\helpers\Html;
 
 
 /**
@@ -34,9 +36,8 @@ class Ajax
     public function sendValidateErrors(Model $model, $message = 'error in data') 
     {
         $ajaxErrors = array();
-        $modelName = get_class($model);
         foreach ($model->errors as $name => $msg) {
-            $ajaxErrors[$modelName . "_" . $name] =  $msg;
+            $ajaxErrors[Html::getInputId($model, $name)] =  $msg;
         }
 
         $this->sendRespond(false, $message, $ajaxErrors);
@@ -63,6 +64,8 @@ class Ajax
      */
     public function sendRespond($status, $message ="", $results = array(), $jsonEncode = true) 
     {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
         //Выводим результат
         //Форматируем в JSON
         $resultsJson = $results;
@@ -75,7 +78,7 @@ class Ajax
 
         $output = '{"results":' . $resultsJson . ', ' .
             ' "success": "'. $statusText.  '", "message": "' . $message . '"}';
-        echo $output;
+        echo  $output;
     }
 
 

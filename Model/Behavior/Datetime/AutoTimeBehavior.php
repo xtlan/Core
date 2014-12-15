@@ -3,6 +3,7 @@ namespace Xtlan\Core\Model\Behavior\Datetime;
 
 use yii\db\ActiveRecord;
 use yii\base\Behavior;
+use Xtlan\Core\Datetime\NullDatetime;
 
 /**
 * AutoTimeBehavior

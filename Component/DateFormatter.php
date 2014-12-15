@@ -52,7 +52,7 @@ class DateFormatter extends Component
      * @param DateTime $date
      * @return string
      */
-    public function formatWeb(DateTime $date)
+    public function formatWeb($date)
     {
         if ($date instanceof NullDatetime) {
             return '';

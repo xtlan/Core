@@ -46,21 +46,23 @@ class PasswordBehavior extends Behavior
     public function events()
     {
         return [
-            ActiveRecord::EVENT_AFTER_FIND => 'afterFind',
             ActiveRecord::EVENT_BEFORE_INSERT => 'beforeInsert',
-            ActiveRecord::EVENT_BEFORE_UPDATE => 'beforeUpdate'
+            ActiveRecord::EVENT_BEFORE_UPDATE => 'beforeUpdate',
+            ActiveRecord::EVENT_AFTER_INSERT => 'afterSave',
+            ActiveRecord::EVENT_AFTER_UPDATE => 'afterSave'
         ];
     }
 
     /**
-     * afterFind
+     * afterSave
      *
      * @param mixed $event
      * @return void
      */
-    public function afterFind($event)
+    public function afterSave($event)
     {
         $this->_isEncodePassword = true;
+        return true;
     }
 
 

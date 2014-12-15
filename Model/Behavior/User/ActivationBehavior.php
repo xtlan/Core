@@ -2,6 +2,7 @@
 namespace Xtlan\Core\Model\Behavior\User;
 
 use yii\base\Behavior;
+use Yii;
 
 /**
 * ActivationBehavior
@@ -49,9 +50,9 @@ class ActivationBehavior extends Behavior
      */
     public function initActivationPassword() 
     {
-        $password = $this->owner->generatePassword();
+        $password = Yii::$app->security->generateRandomString(7);
         $this->setActivateInfo($password);
-        if (!$this->owner->save()) {
+        if (!$this->owner->update()) {
             return false;
         }
         return $password;
@@ -71,7 +72,7 @@ class ActivationBehavior extends Behavior
         //Публикуем пользователя и активируем пароль
         $this->owner->published = 1;
         $this->clearActivateInfo();
-        return $this->owner->save();
+        return $this->owner->update();
     }
 
 
@@ -87,10 +88,11 @@ class ActivationBehavior extends Behavior
             return false;
         }
         //Активируем пароль
+        $this->owner->setEncodePassword(false);
         $this->owner->password = $this->owner->activpassword;
-        $this->owner->setChangedPassword(false);
+        $this->owner->repeatPassword = $this->owner->activpassword;
         $this->clearActivateInfo();
-        return $this->owner->save();
+        return $this->owner->update();
     }
     
 

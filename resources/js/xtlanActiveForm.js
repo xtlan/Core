@@ -343,11 +343,11 @@
                 } else {
                     updateInputs($form, messages, submitting);
                 }
-            });
+            })
         },
 
         reloadInputs: function (messages) {
-            updateInputs($(this), messages, true);
+            updateInputs($(this), messages, false);
         },
 
         submitForm: function () {

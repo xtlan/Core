@@ -67,7 +67,10 @@ class Controller extends BaseController
         }
 
 
-        return new NotFoundHttpException($message);
+        if (YII_ENV_DEV) {
+            $message .= print_r($item->errors, true);
+        }
+        throw new NotFoundHttpException($message);
     }
 
     /**

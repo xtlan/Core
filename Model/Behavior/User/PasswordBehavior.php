@@ -22,12 +22,20 @@ class PasswordBehavior extends Behavior
      */
     public $authField; 
 
+
     /**
      * passwordField
      *
      * @var string
      */
     public $passwordField = 'password';
+    
+    /**
+     * isEncodePassword
+     *
+     * @var boolean
+     */
+    private $_isEncodePassword = true;
 
 
     /**
@@ -38,10 +46,23 @@ class PasswordBehavior extends Behavior
     public function events()
     {
         return [
+            ActiveRecord::EVENT_AFTER_FIND => 'afterFind',
             ActiveRecord::EVENT_BEFORE_INSERT => 'beforeInsert',
             ActiveRecord::EVENT_BEFORE_UPDATE => 'beforeUpdate'
         ];
     }
+
+    /**
+     * afterFind
+     *
+     * @param mixed $event
+     * @return void
+     */
+    public function afterFind($event)
+    {
+        $this->_isEncodePassword = true;
+    }
+
 
 
     /**
@@ -70,6 +91,17 @@ class PasswordBehavior extends Behavior
         $this->updatePassword($event);
     }
 
+    /**
+     * setEncodePassword
+     *
+     * @param boolean $flag
+     * @return void
+     */
+    public function setEncodePassword($flag)
+    {
+        $this->_isEncodePassword = $flag;
+    }
+
     /*
      ** Функция перед сохранением 
      * пользователя
@@ -77,17 +109,21 @@ class PasswordBehavior extends Behavior
     public function updatePassword($event)
     {
         $sender = $event->sender;
+        if (!$this->_isEncodePassword) {
+            return;
+        }
 
         $password = $sender->getAttribute($this->passwordField);
-        if (!empty($password)) {
-            $hash = $this->getHashPassword($password);
-
-            $sender->setAttribute($this->passwordField, $hash);
-        } else {
+        if (empty($password)) {
             $sender->setAttribute(
                 $this->passwordField, 
                 $sender->getOldAttribute($this->passwordField)
             );
+        } 
+
+        if ($this->isChangedPassword()) {
+            $hash = $this->getHashPassword($password);
+            $sender->setAttribute($this->passwordField, $hash);
         } 
 
     }
@@ -128,6 +164,18 @@ class PasswordBehavior extends Behavior
         return Yii::$app->security->generatePasswordHash($password);
     }
     
+
+    /**
+     * isChangedPassword
+     *
+     * @return boolean
+     */
+    public function isChangedPassword()
+    {
+        $password = $this->owner->getAttribute($this->passwordField);
+        $oldPassword = $this->owner->getOldAttribute($this->passwordField);
+        return ($password !== $oldPassword);
+    }
 
 }
 

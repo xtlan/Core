@@ -23,9 +23,11 @@ class SearchModel extends Model
     public function search(QueryInterface $query)
     {
         foreach ($this->attributes as $name => $attribute) {
-            $methodName = 'for' . ucfirst($name);
-            if (method_exists($query, $methodName)) {
-                $query->$methodName($attribute);
+            if (!empty($attribute)) {
+                $methodName = 'for' . ucfirst($name);
+                if (method_exists($query, $methodName)) {
+                    $query->$methodName($attribute);
+                }
             }
         }
 

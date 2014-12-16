@@ -12,7 +12,7 @@ use yii\validators\DateValidator as BaseDateValidator;
 class DateValidator extends BaseDateValidator
 {
 
-    public $format = 'dd.MM.YYYY';
+    public $format = 'dd.MM.y';
 
     public function validateAttribute($model, $attribute)
     {

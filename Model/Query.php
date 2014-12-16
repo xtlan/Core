@@ -3,6 +3,7 @@ namespace Xtlan\Core\Model;
 
 use yii\db\ActiveQuery;
 use yii\db\Expression;
+use Xtlan\Core\Helper\ArrayHelper;
 
 /**
 * Query
@@ -32,16 +33,25 @@ class Query extends ActiveQuery
     public $sortOrder;
 
     /**
+     * getData
+     *
+     * @param string $title
+     * @return array
+     */
+    public function getData($title = 'title')
+    {
+        return ArrayHelper::map($this->all(), 'id', 'title'); 
+    }
+
+    /**
      * sort
      *
-     * @param string $order
-     * @param string $dir
      * @return void
      */
-    public function sort($order = self::DEFAULT_SORT, $dir = self::DESC)
+    public function sort()
     {
-        $this->sortId($dir);
-        $this->setSortMark(self::DEFAULT_SORT, $dir);
+        $this->sortId(self::DESC);
+        $this->setSortMark(self::DEFAULT_SORT, self::DESC);
         return $this;
     }
 

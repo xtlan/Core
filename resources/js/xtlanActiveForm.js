@@ -347,7 +347,11 @@
         },
 
         reloadInputs: function (messages) {
-            updateInputs($(this), messages, false);
+            $form = $(this);
+            var data = $form.data('yiiActiveForm');
+            $.each(data.attributes, function () {
+                updateInput($form, this, messages);
+            });
         },
 
         submitForm: function () {

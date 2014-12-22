@@ -349,9 +349,11 @@
         reloadInputs: function (messages) {
             $form = $(this);
             var data = $form.data('yiiActiveForm');
-            $.each(data.attributes, function () {
-                updateInput($form, this, messages);
-            });
+            if (typeof data !== 'undefined') {
+                $.each(data.attributes, function () {
+                    updateInput($form, this, messages);
+                });
+            }
         },
 
         submitForm: function () {

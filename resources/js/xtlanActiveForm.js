@@ -542,25 +542,25 @@
         $form.trigger(events.afterValidateAttribute, [attribute, messages[attribute.id]]);
 
         attribute.status = 1;
-        if ($input.length) {
-            hasError = messages[attribute.id].length > 0;
-            var $container = $form.find(attribute.container);
-            var $error = $container.find(attribute.error);
-            if (hasError) {
-                if (attribute.encodeError) {
-                    $error.text(messages[attribute.id][0]);
-                } else {
-                    $error.html(messages[attribute.id][0]);
-                }
-                $container.removeClass(data.settings.validatingCssClass + ' ' + data.settings.successCssClass)
-                    .addClass(data.settings.errorCssClass);
+        
+        hasError = messages[attribute.id].length > 0;
+        var $container = $form.find(attribute.container);
+        var $error = $container.find(attribute.error);
+        if (hasError) {
+            if (attribute.encodeError) {
+                $error.text(messages[attribute.id][0]);
             } else {
-                $error.empty();
-                $container.removeClass(data.settings.validatingCssClass + ' ' + data.settings.errorCssClass + ' ')
-                    .addClass(data.settings.successCssClass);
+                $error.html(messages[attribute.id][0]);
             }
-            attribute.value = getValue($form, attribute);
+            $container.removeClass(data.settings.validatingCssClass + ' ' + data.settings.successCssClass)
+                .addClass(data.settings.errorCssClass);
+        } else {
+            $error.empty();
+            $container.removeClass(data.settings.validatingCssClass + ' ' + data.settings.errorCssClass + ' ')
+                .addClass(data.settings.successCssClass);
         }
+        attribute.value = getValue($form, attribute);
+
         return hasError;
     };
 

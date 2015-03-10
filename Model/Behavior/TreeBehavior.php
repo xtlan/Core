@@ -1,7 +1,7 @@
 <?php
 namespace Xtlan\Core\Model\Behavior;
 
-use creocoder\behaviors\NestedSet;
+use creocoder\nestedsets\NestedSetsBehavior;
 
 /**
 * TreeBehavior
@@ -9,7 +9,7 @@ use creocoder\behaviors\NestedSet;
 * @version 1.0.0
 * @author Kirya <cloudkserg11@gmail.com>
 */
-class TreeBehavior extends NestedSet
+class TreeBehavior extends NestedSetsBehavior
 {
 
 

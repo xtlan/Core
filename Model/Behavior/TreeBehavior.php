@@ -41,7 +41,7 @@ class TreeBehavior extends NestedSetsBehavior
 
          //Если это корень просто сохраняем его
         if (empty($model->parent_id)) {
-            return parent::saveNode();
+            return parent::makeRoot();
         }
 
         //Если это ответный комментарий
@@ -54,7 +54,7 @@ class TreeBehavior extends NestedSetsBehavior
         }
 
         //Если уровень родителя > 4 значит берем его родителя
-        if ($this->owner->level > $this->maxLevel) {
+        if ($this->owner->depth > $this->maxLevel) {
             $parentComment = $model::findOne($parentComment->parent_id);
         }
 
@@ -65,8 +65,7 @@ class TreeBehavior extends NestedSetsBehavior
         }
 
         //Если изменяем комментарий
-        parent::saveNode();
+        parent::makeRoot();
         return parent::moveAsLast($parentComment);
-
     }
 }

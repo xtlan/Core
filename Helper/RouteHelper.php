@@ -19,10 +19,15 @@ class RouteHelper
             $controllerString = '(' . implode('|', $controllers) . ')';
         }
 
+        if (empty($prefix)) {
+            $prefix = $moduleName;
+        }
+
         return [
-            "{$moduleName}/<controller:{$controllerString}>" => "{$moduleName}/<controller>/index",
-            "{$moduleName}/<controller:{$controllerString}>/<id:\d+>" => "{$moduleName}/<controller>/edit",
-            "{$moduleName}/<controller:{$controllerString}>/<action>" => "{$moduleName}/<controller>/<action>"
+            "{$prefix}/<controller:{$controllerString}>" => "{$moduleName}/<controller>/",
+            "{$prefix}/<controller:{$controllerString}>" => "{$moduleName}/<controller>/index",
+            "{$prefix}/<controller:{$controllerString}>/<id:\d+>" => "{$moduleName}/<controller>/edit",
+            "{$prefix}/<controller:{$controllerString}>/<action>" => "{$moduleName}/<controller>/<action>"
         ];
     }
     
